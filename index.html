@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<style> 
+ html, body { 
+ width: 100%; 
+ height: 100%; 
+ margin: 0px;
+ overflow: hidden; 
+ } 
+ </style>
+<body>
+
+<canvas id="myCanvas" width="10" height="10" style="border:0px solid #000000;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+ var socket = io();
+ var isdown = false;
+ var mousedownatX,mousedownatY;
+ var draggedtoX,draggedtoY;
+ var mylinewidth = 5;
+ 
+ var c = document.getElementById("myCanvas");
+ var ctx = c.getContext("2d");
+ ctx.canvas.width  = window.innerWidth;
+ ctx.canvas.height = window.innerHeight;
+ var imgbuff = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+ 
+ c.addEventListener("mousedown", doMouseDown, false);
+ c.addEventListener("mousemove", doDrag, false);
+ c.addEventListener("mouseup", doMouseUp, false);
+ 
+ window.addEventListener('resize', resizecanvas, false);
+
+ var socket = io();
+ 
+ ctx.fillStyle = "#000099";
+ ctx.fillRect(0,window.innerHeight-48,window.innerWidth,window.innerHeight);
+
+ socket.on('mouseup', function(msg){
+        ctx.strokeStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(msg.x,msg.y,msg.size,0,2*Math.PI);
+        ctx.stroke();
+     });
+
+ function doDrag(event) {
+     if (isdown) {
+    
+         ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
+         draggedtoX = Math.max(event.pageX,mousedownatX)+mylinewidth/2;
+         draggedtoY = Math.max(event.pageY,mousedownatY)+mylinewidth/2;
+         imgbuff = ctx.getImageData(mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1, draggedtoX+mylinewidth+1, draggedtoY+mylinewidth+1);    
+         ctx.strokeStyle = "#888888";
+         ctx.lineWidth=mylinewidth;
+         //ctx.strokeRect(mousedownatX+mylinewidth/2, mousedownatY+mylinewidth/2, draggedtoX-mousedownatX-mylinewidth-1, draggedtoY-mousedownatY-mylinewidth-1);
+         ctx.beginPath();
+         ctx.arc((mousedownatX+draggedtoX)/2,(mousedownatY+draggedtoY)/2,Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),0,2*Math.PI);
+         ctx.stroke();
+     }
+ }
+ function doMouseDown(event) {     
+	mousedownatX = event.pageX;
+    mousedownatY = event.pageY;
+    draggedtoX = mousedownatX;
+    draggedtoY = mousedownatY;
+    imgbuff = ctx.getImageData(mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1, 1, 1);
+	isdown = true;
+ }
+ function doMouseUp(event) {
+     isdown = false;
+     ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
+     socket.emit('mouseup',{x: (mousedownatX+draggedtoX)/2, y: (mousedownatY+draggedtoY)/2, size: Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),});
+ }
+ function resizecanvas(event) {
+ ctx.canvas.width  = window.innerWidth;
+ ctx.canvas.height = window.innerHeight;  
+ ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+ ctx.fillStyle = "#000099";
+ ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
+}
+
+</script> 
+
+</body>
+</html>
+
