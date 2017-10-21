@@ -4,7 +4,7 @@ TODO: Give a test from the laptop short introduction of your project. Let this s
 #Getting Started
 TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
 1.	Installation process test edit test edit from work machine - yet another edit one moreff creds working
-2.	Software dependenciesfvffv
+2.	Software dependenciesfvffvll
 3.	Latest releases
 4.	API references
 
