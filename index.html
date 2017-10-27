@@ -10,7 +10,7 @@
  </style>
 <body>
 
-<canvas id="myCanvas" width="10" height="10" style="border:0px solid #000000;">
+<canvas tabindex='1' id="myCanvas" width="10" height="10" style="border:0px solid #000000;">
 Your browser does not support the HTML5 canvas tag.
 </canvas>
 
@@ -34,6 +34,8 @@ Your browser does not support the HTML5 canvas tag.
  c.addEventListener("mousemove", doDrag, false);
  c.addEventListener("mouseup", doMouseUp, false);
  c.addEventListener("mousewheel", doMouseWheel, false);
+ c.addEventListener("keydown",doKeyDown,true);
+
  window.addEventListener('resize', resizecanvas, false);
 
  var socket = io();
@@ -48,10 +50,22 @@ Your browser does not support the HTML5 canvas tag.
         ctx.stroke();
      });
 
+ function doKeyDown(event) {
+     if (event.key == "z") {
+        imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
+        ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
+     }
+     else if (event.key == "x") {
+        imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
+        ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
+     }
+ }
 
  function doMouseWheel(event) {
-    ctx.fillStyle = "#009900";
+    ctx.fillStyle = "#003300";
     ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
+    imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
+    ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
  }
 
  function doDrag(event) {
