@@ -25,6 +25,7 @@ Your browser does not support the HTML5 canvas tag.
 
  var xpos = 0;
  var ypos = 0;
+ var stepcount = 0;
 
  var socket = io();
  var isdown = false;
@@ -73,26 +74,25 @@ Your browser does not support the HTML5 canvas tag.
      });
 
  function doKeyDown(event) {
-     var start = null;
+   
      if (event.key == "z") {
-         for (lp=0;lp<blocksize;lp++) {
-            imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
-            windows.requestAnimationFrame(step);
+            stepcount=blocksize;
+            window.requestAnimationFrame(step);
          }
-     }
      else if (event.key == "x") {
         imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
         ctx.putImageData(imgbuff,10,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
      }
-     function step(timestamp) {
-         if (!start) start = timestamp;
+
+ }
+ function step(timestamp) {
+         imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
          ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
-         if ((timestamp - start)<blocksize) {
+         stepcount--;
+         if (stepcount) {
              window.requestAnimationFrame(step);
          }
-     }
  }
- 
  function doMouseWheel(event) {
     ctx.fillStyle = "#003300";
     ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
