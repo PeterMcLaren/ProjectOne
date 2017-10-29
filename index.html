@@ -88,10 +88,7 @@ Your browser does not support the HTML5 canvas tag.
  function step(timestamp) {
          imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
          ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
-         stepcount--;
-         if (stepcount) {
-             window.requestAnimationFrame(step);
-         }
+         if (stepcount--) window.requestAnimationFrame(step);
  }
  function doMouseWheel(event) {
     ctx.fillStyle = "#003300";
