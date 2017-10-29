@@ -7,6 +7,10 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/blkgfx.jpg', function(req,res) {
+  res.sendFile(__dirname + '/blkgfx.jpg')
+});
+
 io.on('connection', function(socket){
   socket.on('mouseup', function(msg){
     console.log('message: ' + msg.x + ' ' + msg.y);

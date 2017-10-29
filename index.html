@@ -17,7 +17,7 @@ Your browser does not support the HTML5 canvas tag.
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-
+ 
  var socket = io();
  var isdown = false;
  var mousedownatX,mousedownatY;
@@ -42,6 +42,10 @@ Your browser does not support the HTML5 canvas tag.
  
  ctx.fillStyle = "#000099";
  ctx.fillRect(0,window.innerHeight-48,window.innerWidth,window.innerHeight);
+
+ var imageObj = document.createElement("img");
+ imageObj.src = "./blkgfx.jpg";
+ ctx.drawImage(imageObj,100,100,200,200);
 
  socket.on('mouseup', function(msg){
         ctx.strokeStyle = "#000000";
@@ -102,6 +106,7 @@ Your browser does not support the HTML5 canvas tag.
  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
  ctx.fillStyle = "#000099";
  ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
+ ctx.drawImage(imageObj,100,100,200,200);
 }
 
 </script> 
