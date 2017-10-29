@@ -22,6 +22,10 @@ Your browser does not support the HTML5 canvas tag.
  var blocksize = 50;
  var blocktypes = 5;
  var blockfilepath = "./blkgfx.jpg";
+
+ var xpos = 0;
+ var ypos = 0;
+
  var socket = io();
  var isdown = false;
  var mousedownatX,mousedownatY;
@@ -70,8 +74,10 @@ Your browser does not support the HTML5 canvas tag.
 
  function doKeyDown(event) {
      if (event.key == "z") {
-        imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
-        ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
+         for (lp=0;lp<blocksize;lp++) {
+            imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
+            ctx.putImageData(imgbuff,1,0,0,0,ctx.canvas.width-1,ctx.canvas.height);
+         }
      }
      else if (event.key == "x") {
         imgbuff = ctx.getImageData(0,0,ctx.canvas.width,ctx.canvas.height);
@@ -122,20 +128,15 @@ Your browser does not support the HTML5 canvas tag.
  function resizecanvas(event) {
      ctx.canvas.width  = window.innerWidth;
      ctx.canvas.height = window.innerHeight;
-     maxx = ctx.canvas.width/blocksize;
-     maxy = ctx.canvas.height/blocksize;
+     maxx = xpos + ctx.canvas.width/blocksize;
+     maxy = ypos + ctx.canvas.height/blocksize;
 
-     for (var x = 0; x < maxx; x++) {
-         for (var y = 0; y < maxy; y++) {
+     for (var x = xpos; x < maxx; x++) {
+         for (var y = ypos; y < maxy; y++) {
              ctx.putImageData(getblock(grid[x][y]),x*blocksize,y*blocksize);
          }
      }
-     
-     //ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-     //ctx.fillStyle = "#000099";
-     //ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
-     //ctx.drawImage(imageObj,0,0);
-
+    
      function getblock(blocknumber) {
      return Blockgfxctx.getImageData(blocknumber*blocksize,0,blocksize,blocksize)
  }
