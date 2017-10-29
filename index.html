@@ -17,7 +17,9 @@ Your browser does not support the HTML5 canvas tag.
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
- 
+ window.addEventListener('resize', resizecanvas, false);
+ window.addEventListener('load', resizecanvas, false);
+
  var blocksize = 50;
  var blocktypes = 5;
  var socket = io();
@@ -25,6 +27,10 @@ Your browser does not support the HTML5 canvas tag.
  var mousedownatX,mousedownatY;
  var draggedtoX,draggedtoY;
  var mylinewidth = 5;
+
+ var imageObj = document.createElement("img");
+ var Blockgfx = document.createElement("canvas");
+ var Blockgfxctx = Blockgfx.getContext("2d");
  
  var c = document.getElementById("myCanvas");
  var ctx = c.getContext("2d");
@@ -39,7 +45,6 @@ Your browser does not support the HTML5 canvas tag.
  c.addEventListener("mousewheel", doMouseWheel, false);
  c.addEventListener("keydown",doKeyDown,true);
 
- window.addEventListener('resize', resizecanvas, false);
 
  var socket = io();
  
@@ -109,17 +114,16 @@ Your browser does not support the HTML5 canvas tag.
      ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
      socket.emit('mouseup',{x: (mousedownatX+draggedtoX)/2, y: (mousedownatY+draggedtoY)/2, size: Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),});
  }
+ function onload(event) {
+  resizecanvas(event);
+ }
  function resizecanvas(event) {
      
-    var imageObj = document.createElement("img");
-    var Blockgfx = document.createElement("canvas");
-    var Blockgfxctx = Blockgfx.getContext("2d");
     imageObj.src = "./blkgfx.jpg";
     Blockgfxctx.canvas.width=blocksize*blocktypes;
     Blockgfxctx.canvas.height=blocksize;
     Blockgfxctx.drawImage(imageObj,0,0);
-    
-    
+
     ctx.canvas.width  = window.innerWidth;
      ctx.canvas.height = window.innerHeight;
      maxx = ctx.canvas.width/blocksize;
@@ -134,7 +138,7 @@ Your browser does not support the HTML5 canvas tag.
      //ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
      //ctx.fillStyle = "#000099";
      //ctx.fillRect(0,ctx.canvas.height-48,ctx.canvas.width,ctx.canvas.height);
-     ctx.drawImage(imageObj,0,0);
+     //ctx.drawImage(imageObj,0,0);
 
      function getblock(blocknumber) {
      return Blockgfxctx.getImageData(blocknumber*blocksize,0,blocksize,blocksize)
