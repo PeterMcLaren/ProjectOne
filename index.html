@@ -59,6 +59,12 @@ Your browser does not support the HTML5 canvas tag.
  // Do we need this?
  var imgbuff = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+ // Setup buffer canvas which will be one block bigger than the display canvas window
+ var buffergfx = document.createElement("canvas");
+ var buffergfxctx = buffergfx.getContext("2d");
+ buffergfxctx.canvas.width=ctx.canvas.width+blocksize*2;
+ buffergfxctx.canvas.height=cts.canvas.height+blocksize*2;
+
 
  // Set up various listeners
  c.addEventListener("mousedown", doMouseDown, false);
@@ -83,7 +89,6 @@ Your browser does not support the HTML5 canvas tag.
          grid[i][j] = (Math.random() *blocktypes | 0);
      }
  }
-
 
  //FUNCTIONS BELOW
 
@@ -162,10 +167,19 @@ Your browser does not support the HTML5 canvas tag.
              ctx.putImageData(getblock(grid[xpos+x][ypos+y]),x*blocksize,y*blocksize);
          }
      }
-    
-     function getblock(blocknumber) {
-     return Blockgfxctx.getImageData(blocknumber*blocksize,0,blocksize,blocksize)
  }
+
+ function renderintobuffer(x,y) {
+     maxx = (buffergfxctx.canvas.width/blocksize)+2;
+     maxy = (buffergfxctx.canvas.height/blocksize)+2;
+     for (var i=0; i<maxx; i++) {
+         for (var j=0; j<maxy; j++) {
+             buffergfxctx.putImageData(getblock(grid[x+i][y+j]),i*blocksize,j*blocksize);
+         }
+     }
+ }
+ function getblock(blocknumber) {
+     return Blockgfxctx.getImageData(blocknumber*blocksize,0,blocksize,blocksize)
 }
 
 </script> 
