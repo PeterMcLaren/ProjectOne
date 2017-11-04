@@ -19,12 +19,16 @@ Your browser does not support the HTML5 canvas tag.
 <script>
  window.addEventListener('resize', resizecanvas, false);
 
+
+ //Set up block properties and source location
  var blocksize = 50;
  var blocktypes = 5;
  var blockfilepath = "./blkgfx.jpg";
 
- var xpos = 0;
- var ypos = 0;
+
+//Initial position of the screen and some other stuff
+ var xpos = 50;
+ var ypos = 50;
  var stepcount = 0;
 
  var socket = io();
@@ -33,38 +37,55 @@ Your browser does not support the HTML5 canvas tag.
  var draggedtoX,draggedtoY;
  var mylinewidth = 5;
 
+ // imageObj is the canvas which contains the source images of each block type loaded from a file.
  var imageObj = document.createElement("img");
  var Blockgfx = document.createElement("canvas");
  var Blockgfxctx = Blockgfx.getContext("2d");
  imageObj.src = blockfilepath;
+ // Set canvas to size / shape of source image
  Blockgfxctx.canvas.width=blocksize*blocktypes;
  Blockgfxctx.canvas.height=blocksize;
- imageObj.addEventListener("load",onload,false);
+ // Copy graphic data into canvas - seems to suffer from some kind of race condition if you do it in line
+ // so do it with load event
+ imageObj.addEventListener("load",ongraphicsload,false);
  
+ // Get canvas from browser
  var c = document.getElementById("myCanvas");
  var ctx = c.getContext("2d");
+ // Expand it to fill window. - probably unneccessary
  ctx.canvas.width  = window.innerWidth;
  ctx.canvas.height = window.innerHeight;
+
+ // Do we need this?
  var imgbuff = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+
+ // Set up various listeners
  c.addEventListener("mousedown", doMouseDown, false);
  c.addEventListener("mousemove", doDrag, false);
  c.addEventListener("mouseup", doMouseUp, false);
  c.addEventListener("mousewheel", doMouseWheel, false);
  c.addEventListener("keydown",doKeyDown,true);
 
+ // Set up sockets
  var socket = io();
  
+ // Colour bar across the bottom
  ctx.fillStyle = "#990099";
  ctx.fillRect(0,window.innerHeight-48,window.innerWidth,window.innerHeight);
 
+
+ // Populate grid with random blocks
  var grid =[];
- for (var i = 0 ; i<100; i++) {
+ for (var i = 0 ; i<200; i++) {
      grid[i] = []; //initialise the inner array
-     for (var j = 0; j<100; j++) {
+     for (var j = 0; j<200; j++) {
          grid[i][j] = (Math.random() *blocktypes | 0);
      }
  }
+
+
+ //FUNCTIONS BELOW
 
  socket.on('mouseup', function(msg){
         ctx.strokeStyle = "#000000";
@@ -125,20 +146,20 @@ Your browser does not support the HTML5 canvas tag.
      ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
      socket.emit('mouseup',{x: (mousedownatX+draggedtoX)/2, y: (mousedownatY+draggedtoY)/2, size: Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),});
  }
- function onload(event)
+ function ongraphicsload(event)
  {
     Blockgfxctx.drawImage(imageObj,0,0); 
     resizecanvas(event);
  }
  function resizecanvas(event) {
-     ctx.canvas.width  = window.innerWidth;
-     ctx.canvas.height = window.innerHeight;
-     maxx = xpos + ctx.canvas.width/blocksize;
-     maxy = ypos + ctx.canvas.height/blocksize;
+     ctx.canvas.width  = window.innerWidth+blocksize*2;
+     ctx.canvas.height = window.innerHeight+blocksize*2;
+     maxx = ctx.canvas.width/blocksize;
+     maxy = ctx.canvas.height/blocksize;
 
-     for (var x = xpos; x < maxx; x++) {
-         for (var y = ypos; y < maxy; y++) {
-             ctx.putImageData(getblock(grid[x][y]),x*blocksize,y*blocksize);
+     for (var x = 0; x < maxx; x++) {
+         for (var y = 0; y < maxy; y++) {
+             ctx.putImageData(getblock(grid[xpos+x][ypos+y]),x*blocksize,y*blocksize);
          }
      }
     
