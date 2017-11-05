@@ -100,15 +100,23 @@ Your browser does not support the HTML5 canvas tag.
 
  function doKeyDown(event) {
    
-     if (event.key == "z") {
+     switch (event.keyCode) {
+         case 39:
             xpos--;
             window.requestAnimationFrame(step);
-         }
-     else if (event.key == "x") {
-        xpos++;
-        window.requestAnimationFrame(step);
+            break;
+         case 37:
+            xpos++;
+            window.requestAnimationFrame(step);
+            break;
+         case 40:
+            ypos--;
+            window.requestAnimationFrame(step);
+            break;
+         case 38:
+            ypos++;
+            window.requestAnimationFrame(step);
      }
-
  }
  function step(timestamp) {
      renderontoscreen();
@@ -160,8 +168,9 @@ Your browser does not support the HTML5 canvas tag.
      ctx.canvas.height = window.innerHeight;
      
      // SET BUFFER CANVAS TO SCREEN SIZE PLUS 1 BLOCK
-     buffergfxctx.canvas.width=ctx.canvas.width+blocksize*2;
-     buffergfxctx.canvas.height=ctx.canvas.height+blocksize*2;
+     // because you will have to render a fraction of the next block as you scroll
+     buffergfxctx.canvas.width=ctx.canvas.width+blocksize;
+     buffergfxctx.canvas.height=ctx.canvas.height+blocksize;
      bufferblockwidth=buffergfxctx.canvas.width/blocksize;
      bufferblockheight=buffergfxctx.canvas.height/blocksize;
      // Force a rerender of the buffer because the size has changed.
@@ -178,6 +187,7 @@ Your browser does not support the HTML5 canvas tag.
      renderintobuffer(Math.floor(xpos/blocksize),Math.floor(ypos/blocksize));
      // RENDER with the offset equal to the modulo 
      ctx.putImageData(buffergfxctx.getImageData(xpos%blocksize,ypos%blocksize,ctx.canvas.width,ctx.canvas.height),0,0);
+     ctx.fillText("("+xpos+","+ypos+")",20,20);
  }
 
  function renderintobuffer(x,y) {
