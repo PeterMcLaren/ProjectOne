@@ -47,7 +47,14 @@ Your browser does not support the HTML5 canvas tag.
  for (var i = 0 ; i<gridsize; i++) {
      grid[i] = []; //initialise the inner array
      for (var j = 0; j<gridsize; j++) {
-         grid[i][j] = (Math.random() *blocktypes | 0);
+         //0.x is chance of being a space - to make the map sparse
+         if (!(Math.floor(Math.random()+0.5))) {
+             grid[i][j] = (Math.random() *blocktypes | 0);
+         }
+         else
+         {
+             grid[i][j] = 1;
+         }
      }
  }
 
