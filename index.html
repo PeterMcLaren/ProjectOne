@@ -29,7 +29,7 @@ Your browser does not support the HTML5 canvas tag.
  // xpos and ypos are pixel positions not block positions
  var xpos = (gridsize/2)*blocksize;
  var ypos = (gridsize/2)*blocksize;
- // Used by the render function to check if it needs to actually do anything
+ // Lastxblock and lastyblock used by the render function to check if it needs to actually do anything
  var lastxblock,lastyblock;
  var stepcount = 0;
  var bufferblockwidth =0;
@@ -119,6 +119,7 @@ Your browser does not support the HTML5 canvas tag.
      }
  }
  function step(timestamp) {
+     // Render on next frame
      renderontoscreen();
  }
  function doMouseWheel(event) {
@@ -130,31 +131,22 @@ Your browser does not support the HTML5 canvas tag.
 
  function doDrag(event) {
      if (isdown) {
-    
-         ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
-         draggedtoX = Math.max(event.pageX,mousedownatX)+mylinewidth/2;
-         draggedtoY = Math.max(event.pageY,mousedownatY)+mylinewidth/2;
-         imgbuff = ctx.getImageData(mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1, draggedtoX+mylinewidth+1, draggedtoY+mylinewidth+1);    
-         ctx.strokeStyle = "#888888";
-         ctx.lineWidth=mylinewidth;
-         //ctx.strokeRect(mousedownatX+mylinewidth/2, mousedownatY+mylinewidth/2, draggedtoX-mousedownatX-mylinewidth-1, draggedtoY-mousedownatY-mylinewidth-1);
-         ctx.beginPath();
-         ctx.arc((mousedownatX+draggedtoX)/2,(mousedownatY+draggedtoY)/2,Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),0,2*Math.PI);
-         ctx.stroke();
+         // Calc drag position
+         xpos=mousedownatX-event.pageX;
+         ypos=mousedownatY-event.pageY;
+         // Render on next frame
+         window.requestAnimationFrame(step);
      }
  }
- function doMouseDown(event) {     
-	mousedownatX = event.pageX;
-    mousedownatY = event.pageY;
-    draggedtoX = mousedownatX;
-    draggedtoY = mousedownatY;
-    imgbuff = ctx.getImageData(mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1, 1, 1);
-	isdown = true;
+ function doMouseDown(event) {
+     // Remember grab point
+     mousedownatX = xpos+event.pageX;
+     mousedownatY = ypos+event.pageY;
+     // Flag mouse is down
+     isdown = true;
  }
  function doMouseUp(event) {
      isdown = false;
-     ctx.putImageData(imgbuff, mousedownatX-mylinewidth/2-1, mousedownatY-mylinewidth/2-1);
-     socket.emit('mouseup',{x: (mousedownatX+draggedtoX)/2, y: (mousedownatY+draggedtoY)/2, size: Math.min((draggedtoX-mousedownatX)/2,(draggedtoY-mousedownatY)/2),});
  }
  function ongraphicsload(event)
  {
