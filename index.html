@@ -17,19 +17,19 @@ Your browser does not support the HTML5 canvas tag.
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
- window.addEventListener('resize', resizecanvas, false);
-
 
  //Set up block properties and source location
  var blocksize = 50;
  var blocktypes = 5;
  var blockfilepath = "./blkgfx.jpg";
 
-
-//Initial position of the screen and some other stuff
+ // INITIAL SETUP OF GLOBALS
+ // Initial position of the screen and some other stuff
  var xpos = 50;
  var ypos = 50;
  var stepcount = 0;
+ var bufferblockwidth =0;
+ var bufferblockheight =0;
 
  var socket = io();
  var isdown = false;
@@ -37,36 +37,40 @@ Your browser does not support the HTML5 canvas tag.
  var draggedtoX,draggedtoY;
  var mylinewidth = 5;
 
+ // DATA LOAD
+ // Populate grid with random blocks
+ var grid =[];
+ for (var i = 0 ; i<200; i++) {
+     grid[i] = []; //initialise the inner array
+     for (var j = 0; j<200; j++) {
+         grid[i][j] = (Math.random() *blocktypes | 0);
+     }
+ }
+
+ // SETUP BROWSER CANVAS
+ // Get canvas from browser
+ var c = document.getElementById("myCanvas");
+ var ctx = c.getContext("2d");
+
+ // SETUP BLOCK SOURCE DATA
  // imageObj is the canvas which contains the source images of each block type loaded from a file.
  var imageObj = document.createElement("img");
  var Blockgfx = document.createElement("canvas");
  var Blockgfxctx = Blockgfx.getContext("2d");
  imageObj.src = blockfilepath;
- // Set canvas to size / shape of source image
+ // Set canvas to size / shape of source file
  Blockgfxctx.canvas.width=blocksize*blocktypes;
  Blockgfxctx.canvas.height=blocksize;
  // Copy graphic data into canvas - seems to suffer from some kind of race condition if you do it in line
  // so do it with load event
  imageObj.addEventListener("load",ongraphicsload,false);
- 
- // Get canvas from browser
- var c = document.getElementById("myCanvas");
- var ctx = c.getContext("2d");
- // Expand it to fill window. - probably unneccessary
- ctx.canvas.width  = window.innerWidth;
- ctx.canvas.height = window.innerHeight;
 
- // Do we need this?
- var imgbuff = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-
- // Setup buffer canvas which will be one block bigger than the display canvas window
+ // CREATE BUFFER CANVAS
  var buffergfx = document.createElement("canvas");
  var buffergfxctx = buffergfx.getContext("2d");
- buffergfxctx.canvas.width=ctx.canvas.width+blocksize*2;
- buffergfxctx.canvas.height=cts.canvas.height+blocksize*2;
-
 
  // Set up various listeners
+ window.addEventListener('resize', resizecanvas, false);
  c.addEventListener("mousedown", doMouseDown, false);
  c.addEventListener("mousemove", doDrag, false);
  c.addEventListener("mouseup", doMouseUp, false);
@@ -80,15 +84,6 @@ Your browser does not support the HTML5 canvas tag.
  ctx.fillStyle = "#990099";
  ctx.fillRect(0,window.innerHeight-48,window.innerWidth,window.innerHeight);
 
-
- // Populate grid with random blocks
- var grid =[];
- for (var i = 0 ; i<200; i++) {
-     grid[i] = []; //initialise the inner array
-     for (var j = 0; j<200; j++) {
-         grid[i][j] = (Math.random() *blocktypes | 0);
-     }
- }
 
  //FUNCTIONS BELOW
 
@@ -157,8 +152,17 @@ Your browser does not support the HTML5 canvas tag.
     resizecanvas(event);
  }
  function resizecanvas(event) {
-     ctx.canvas.width  = window.innerWidth+blocksize*2;
-     ctx.canvas.height = window.innerHeight+blocksize*2;
+
+     // SET CANVAS TO NEW WINDOWS SIZE
+     ctx.canvas.width  = window.innerWidth;
+     ctx.canvas.height = window.innerHeight;
+     
+     // SET BUFFER CANVAS TO SCREEN SIZE PLUS 1 BLOCK
+     buffergfxctx.canvas.width=ctx.canvas.width+blocksize*2;
+     buffergfxctx.canvas.height=ctx.canvas.height+blocksize*2;
+     bufferblockwidth=buffergfxctx.canvas.width/blocksize;
+     bufferblockheight=buffergfxctx.canvas.height/blocksize;
+
      maxx = ctx.canvas.width/blocksize;
      maxy = ctx.canvas.height/blocksize;
 
