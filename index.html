@@ -20,13 +20,17 @@ Your browser does not support the HTML5 canvas tag.
 
  //Set up block properties and source location
  var blocksize = 50;
+ var gridsize = 200;
  var blocktypes = 5;
  var blockfilepath = "./blkgfx.jpg";
 
  // INITIAL SETUP OF GLOBALS
  // Initial position of the screen and some other stuff
- var xpos = 50;
- var ypos = 50;
+ // xpos and ypos are pixel positions not block positions
+ var xpos = (gridsize/2)*blocksize;
+ var ypos = (gridsize/2)*blocksize;
+ // Used by the render function to check if it needs to actually do anything
+ var lastxblock,lastyblock;
  var stepcount = 0;
  var bufferblockwidth =0;
  var bufferblockheight =0;
@@ -40,9 +44,9 @@ Your browser does not support the HTML5 canvas tag.
  // DATA LOAD
  // Populate grid with random blocks
  var grid =[];
- for (var i = 0 ; i<200; i++) {
+ for (var i = 0 ; i<gridsize; i++) {
      grid[i] = []; //initialise the inner array
-     for (var j = 0; j<200; j++) {
+     for (var j = 0; j<gridsize; j++) {
          grid[i][j] = (Math.random() *blocktypes | 0);
      }
  }
@@ -162,24 +166,33 @@ Your browser does not support the HTML5 canvas tag.
      buffergfxctx.canvas.height=ctx.canvas.height+blocksize*2;
      bufferblockwidth=buffergfxctx.canvas.width/blocksize;
      bufferblockheight=buffergfxctx.canvas.height/blocksize;
+     // Force a rerender of the buffer because the size has changed.
+     lastxblock=-1;
 
-     maxx = ctx.canvas.width/blocksize;
-     maxy = ctx.canvas.height/blocksize;
+     //Rerender the new screen size
+     renderontoscreen();
+    
+ }
 
-     for (var x = 0; x < maxx; x++) {
-         for (var y = 0; y < maxy; y++) {
-             ctx.putImageData(getblock(grid[xpos+x][ypos+y]),x*blocksize,y*blocksize);
-         }
-     }
+ function renderontoscreen() {
+     // Uses globals xpos and ypos.
+     // RENDER the nearest whole block position into the buffer. Will do nothing if no change from last time.
+     renderintobuffer(Math.floor(xpos/blocksize),Math.floor(ypos/blocksize));
+     // RENDER with the offset equal to the modulo 
+     ctx.putImageData(buffergfxctx.getImageData(xpos%blocksize,ypos%blocksize,ctx.canvas.width,ctx.canvas.height),0,0);
  }
 
  function renderintobuffer(x,y) {
-     maxx = (buffergfxctx.canvas.width/blocksize)+2;
-     maxy = (buffergfxctx.canvas.height/blocksize)+2;
-     for (var i=0; i<maxx; i++) {
-         for (var j=0; j<maxy; j++) {
-             buffergfxctx.putImageData(getblock(grid[x+i][y+j]),i*blocksize,j*blocksize);
+     // May be called if only the modulus has changed to check the block has actually changed from last time.
+     // Avoid unneeded rendering
+     if ((x != lastxblock)||(y != lastyblock)) {
+         for (var i=0; i<bufferblockwidth; i++) {
+             for (var j=0; j<bufferblockheight; j++) {
+                 buffergfxctx.putImageData(getblock(grid[x+i][y+j]),i*blocksize,j*blocksize);
+                 }
          }
+         lastxblock=x;
+         lastyblock=y;
      }
  }
  function getblock(blocknumber) {
