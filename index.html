@@ -187,7 +187,7 @@ Your browser does not support the HTML5 canvas tag.
      // RENDER with the offset equal to the modulo 
      ctx.putImageData(buffergfxctx.getImageData(xpos%blocksize,ypos%blocksize,ctx.canvas.width,ctx.canvas.height),0,0);
      ctx.fillText("("+xpos+","+ypos+")",20,20);
-     drawplayer(0);
+     drawplayer(1);
  }
 
  function renderintobuffer(x,y) {
@@ -208,13 +208,15 @@ Your browser does not support the HTML5 canvas tag.
 }
 
  function drawplayer(angle) {
+     scale=blocksize/2;
      centrex=ctx.canvas.width/2;
      centrey=ctx.canvas.height/2;
      ctx.strokeStyle = "#000000";
      ctx.beginPath();
      ctx.lineWidth=5;
-     ctx.moveTo(centrex-25,centrey-25);
-     ctx.lineTo(centrex+25,centrey+25);
+     ctx.moveTo(centrex-Math.sin(angle)*scale,centrey-Math.cos(angle)*scale);
+     ctx.lineTo(centrex-Math.sin(angle+Math.PI/3)*scale,centrey-Math.cos(angle+Math.PI/3)*scale);
+     ctx.lineTo(centrex,centrey)
      ctx.stroke();
  }
 </script> 
